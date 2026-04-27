@@ -1,67 +1,161 @@
 # Wallet Rebalancer ⚖️
 
-A standalone TypeScript CLI tool designed to automatically equalize Ethereum balances across multiple configured keystore wallets. This tool calculates the optimal transfer plan, accounts for gas fees, and executes the rebalancing seamlessly.
+A TypeScript CLI tool to rebalance ETH across multiple wallets by equalizing their balances.
+
+⚠️ **This tool moves real funds. Use at your own risk. Always run in `--dry-run` before executing.**
+
+---
+
+## 🧠 How it works
+
+* Reads balances from configured wallets
+* Computes total balance
+* Calculates equal target per wallet (1/N)
+* Generates a minimal transfer plan
+* Optionally executes transactions
+
+All calculations are performed using integer (`BigInt`) arithmetic to avoid precision issues.
+
+---
 
 ## 🚀 Features
 
-- **Automated Rebalancing**: Evaluates balances across multiple addresses and calculates transfers to make them roughly equal.
-- **Dry-Run Mode**: Safely preview the transfer plan and network estimations before broadcasting any transactions.
-- **Configurable Limits**: Easily limit the maximum number of transactions, maximum/minimum amounts to send per transaction, and custom RPC URLs.
-- **Secure Keystore Support**: Uses encrypted standard `.keystore.json` files ensuring your private keys are handled securely.
+* Deterministic ETH rebalancing (equal split)
+* Dry-run mode (default)
+* Transfer planning before execution
+* Configurable transaction limits
+* Retry mechanism for failed transactions
+* Encrypted keystore wallet support
+
+---
 
 ## ⚙️ Setup & Installation
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/xnan-dev/wallet-rebalancer.git
-   cd wallet-rebalancer
-   ```
+### 1. Clone the repository
 
-2. **Install dependencies**
-   Ensure you have Node.js installed, then run:
-   ```bash
-   npm install
-   ```
+```bash
+git clone https://github.com/xnan-dev/wallet-rebalancer.git
+cd wallet-rebalancer
+```
 
-3. **Provide Wallets**
-   Create a `wallets/` directory in the root. Place your encrypted `.keystore.json` files in this folder.
-   *(Sample keystores are provided inside the `wallets.sample/` directory if you need a reference).*
-   
-   Optionally, you can add an accompanying `.metadata.json` (e.g. `{"name": "My Wallet"}`) next to the keystore for clear CLI labeling.
+### 2. Install dependencies
 
-4. **Environment Variables**
-   Create a `.env` file at the root of the project with your configurations:
-   ```env
-   # Required
-   WALLET_PASSWORD="your-keystore-password"
-   
-   # Optional configurations (Defaults shown)
-   ETHEREUM_RPC_URL="http://127.0.0.1:8545"
-   MAX_TX_AMOUNT="20000"
-   MIN_TX_AMOUNT="0.0050"
-   MAX_TX_RETRIES="5"
-   MAX_TRANSACTIONS="20"
-   ```
+```bash
+npm install
+```
+
+### 3. Provide Wallets
+
+Create a `wallets/` directory and place your `.keystore.json` files inside.
+
+Optional metadata file (same name, `.metadata.json`):
+
+```json
+{
+  "name": "My Wallet"
+}
+```
+
+---
+
+### 4. Environment Variables
+
+Create a `.env` file:
+
+```env
+# Required
+WALLET_PASSWORD="your-keystore-password"
+
+# Optional
+ETHEREUM_RPC_URL="http://127.0.0.1:8545"
+MAX_TX_AMOUNT="20000"
+MIN_TX_AMOUNT="0.005"
+MAX_TX_RETRIES="5"
+MAX_TRANSACTIONS="20"
+```
+
+---
 
 ## 🛠️ Usage
 
-To run the project, we use `ts-node` or execute the compiled code directly.
+### 🔍 Dry Run (default, safe)
 
-### Development / Direct Execution
-You can run the script via CLI arguments manually.
-
-#### Preview Plan (Dry-Run)
-Safely review the calculated transfer plan without executing any actual transactions:
 ```bash
 npx ts-node src/index.ts --dry-run
 ```
-*Note: If the projected transfer operations exceed your `MAX_TRANSACTIONS` limit, the CLI will alert you in advance.*
 
-#### Execute Rebalancing
-Execute the transfer plan and actively broadcast transactions to the network:
+Example output:
+
+```
+=== REBALANCE SUMMARY ===
+Wallets:        3
+Total Balance:  30000.00 ETH
+Target:         10000.00 ETH
+
+=== CURRENT BALANCES ===
+Wallet A   9983.98 ETH   (-16.02)
+Wallet B  10016.01 ETH   (+16.01)
+Wallet C   9999.99 ETH   (-0.01)
+
+=== TRANSFER PLAN ===
+Wallet B → Wallet A   16.01 ETH
+Wallet B → Wallet C    0.01 ETH
+
+Total Transfers: 2
+```
+
+---
+
+### 🚀 Execute
+
 ```bash
 npx ts-node src/index.ts --execute
 ```
 
-## 🔐 Security Note
-Never commit your `wallets/` folder, actual `.keystore.json` files, or `.env` file containing passwords to version control! They are permanently added to `.gitignore` to prevent any accidental leakage.
+Transactions will be broadcast to the network.
+
+---
+
+## 🔐 Security Notes
+
+* Never commit:
+
+  * `wallets/`
+  * `.env`
+
+* Always verify:
+
+  * RPC endpoint
+  * wallet addresses
+  * transfer plan (via dry-run)
+
+* The tool will:
+
+  * Abort if limits are exceeded
+  * Retry failed transactions (up to configured max)
+
+---
+
+## 🧪 Testing
+
+You can simulate a rebalance locally:
+
+```bash
+npx ts-node src/simulate.ts
+```
+
+---
+
+## 🧭 Roadmap
+
+* ERC20 token support (USDC, USDT)
+* Weighted allocations (custom targets)
+* Multi-chain support
+
+---
+
+## ⚠️ Disclaimer
+
+This software is experimental and provided "as is", without warranties of any kind.
+
+You are solely responsible for any use and any loss of funds.
