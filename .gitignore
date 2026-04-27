@@ -37,3 +37,9 @@ npm-debug.log*
 
 # Hardhat
 /hardhat
+
+# Ignored scripts
+/src/send.ts
+
+# Wallets
+/wallets
