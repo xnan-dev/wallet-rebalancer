@@ -1,57 +1,67 @@
-# Sample Hardhat 3 Beta Project (`node:test` and `viem`)
+# Wallet Rebalancer ⚖️
 
-This project showcases a Hardhat 3 Beta project using the native Node.js test runner (`node:test`) and the `viem` library for Ethereum interactions.
+A standalone TypeScript CLI tool designed to automatically equalize Ethereum balances across multiple configured keystore wallets. This tool calculates the optimal transfer plan, accounts for gas fees, and executes the rebalancing seamlessly.
 
-To learn more about the Hardhat 3 Beta, please visit the [Getting Started guide](https://hardhat.org/docs/getting-started#getting-started-with-hardhat-3). To share your feedback, join our [Hardhat 3 Beta](https://hardhat.org/hardhat3-beta-telegram-group) Telegram group or [open an issue](https://github.com/NomicFoundation/hardhat/issues/new) in our GitHub issue tracker.
+## 🚀 Features
 
-## Project Overview
+- **Automated Rebalancing**: Evaluates balances across multiple addresses and calculates transfers to make them roughly equal.
+- **Dry-Run Mode**: Safely preview the transfer plan and network estimations before broadcasting any transactions.
+- **Configurable Limits**: Easily limit the maximum number of transactions, maximum/minimum amounts to send per transaction, and custom RPC URLs.
+- **Secure Keystore Support**: Uses encrypted standard `.keystore.json` files ensuring your private keys are handled securely.
 
-This example project includes:
+## ⚙️ Setup & Installation
 
-- A simple Hardhat configuration file.
-- Foundry-compatible Solidity unit tests.
-- TypeScript integration tests using [`node:test`](nodejs.org/api/test.html), the new Node.js native test runner, and [`viem`](https://viem.sh/).
-- Examples demonstrating how to connect to different types of networks, including locally simulating OP mainnet.
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/xnan-dev/wallet-rebalancer.git
+   cd wallet-rebalancer
+   ```
 
-## Usage
+2. **Install dependencies**
+   Ensure you have Node.js installed, then run:
+   ```bash
+   npm install
+   ```
 
-### Running Tests
+3. **Provide Wallets**
+   Create a `wallets/` directory in the root. Place your encrypted `.keystore.json` files in this folder.
+   *(Sample keystores are provided inside the `wallets.sample/` directory if you need a reference).*
+   
+   Optionally, you can add an accompanying `.metadata.json` (e.g. `{"name": "My Wallet"}`) next to the keystore for clear CLI labeling.
 
-To run all the tests in the project, execute the following command:
+4. **Environment Variables**
+   Create a `.env` file at the root of the project with your configurations:
+   ```env
+   # Required
+   WALLET_PASSWORD="your-keystore-password"
+   
+   # Optional configurations (Defaults shown)
+   ETHEREUM_RPC_URL="http://127.0.0.1:8545"
+   MAX_TX_AMOUNT="20000"
+   MIN_TX_AMOUNT="0.0050"
+   MAX_TX_RETRIES="5"
+   MAX_TRANSACTIONS="20"
+   ```
 
-```shell
-npx hardhat test
+## 🛠️ Usage
+
+To run the project, we use `ts-node` or execute the compiled code directly.
+
+### Development / Direct Execution
+You can run the script via CLI arguments manually.
+
+#### Preview Plan (Dry-Run)
+Safely review the calculated transfer plan without executing any actual transactions:
+```bash
+npx ts-node src/index.ts --dry-run
+```
+*Note: If the projected transfer operations exceed your `MAX_TRANSACTIONS` limit, the CLI will alert you in advance.*
+
+#### Execute Rebalancing
+Execute the transfer plan and actively broadcast transactions to the network:
+```bash
+npx ts-node src/index.ts --execute
 ```
 
-You can also selectively run the Solidity or `node:test` tests:
-
-```shell
-npx hardhat test solidity
-npx hardhat test nodejs
-```
-
-### Make a deployment to Sepolia
-
-This project includes an example Ignition module to deploy the contract. You can deploy this module to a locally simulated chain or to Sepolia.
-
-To run the deployment to a local chain:
-
-```shell
-npx hardhat ignition deploy ignition/modules/Counter.ts
-```
-
-To run the deployment to Sepolia, you need an account with funds to send the transaction. The provided Hardhat configuration includes a Configuration Variable called `SEPOLIA_PRIVATE_KEY`, which you can use to set the private key of the account you want to use.
-
-You can set the `SEPOLIA_PRIVATE_KEY` variable using the `hardhat-keystore` plugin or by setting it as an environment variable.
-
-To set the `SEPOLIA_PRIVATE_KEY` config variable using `hardhat-keystore`:
-
-```shell
-npx hardhat keystore set SEPOLIA_PRIVATE_KEY
-```
-
-After setting the variable, you can run the deployment with the Sepolia network:
-
-```shell
-npx hardhat ignition deploy --network sepolia ignition/modules/Counter.ts
-```
+## 🔐 Security Note
+Never commit your `wallets/` folder, actual `.keystore.json` files, or `.env` file containing passwords to version control! They are permanently added to `.gitignore` to prevent any accidental leakage.
