@@ -63,13 +63,18 @@ export function logTransferPlan(plan: Transfer[]) {
   if (plan.length === 0) {
     logger.info("No transfer required.");
   } else {
+    let totalVolume = 0n;
     for (const p of plan) {
+      totalVolume += p.amount;
       const shortFrom = `(...${p.from.slice(-4)})`;
       const shortTo = `(...${p.to.slice(-4)})`;
       const fromIdent = p.fromName ? ansiYellow(`${p.fromName} ${shortFrom}`) : ansiYellow(p.from);
       const toIdent = p.toName ? ansiYellow(`${p.toName} ${shortTo}`) : ansiYellow(p.to);
       logger.info(`${fromIdent} to: ${toIdent} amount: ETH ${ethers.formatEther(p.amount)}`);
     }
+
+    logger.info(`\nTotal Transfers: ${plan.length}`);
+    logger.info(`Total Volume:    ${ethers.formatEther(totalVolume)} ETH`);
   }
 
   logger.info(formatFooter());

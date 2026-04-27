@@ -18,32 +18,34 @@ function checkMaxTxAmount(amount: bigint) {
   }
 }
 
-async function sendTransaction(signer: ethers.Wallet, to: string, amount: bigint) {
-  const prefix = ansiRed("executing:");
-  logger.info(`\n${prefix} Sending ${ethers.formatEther(amount)} ETH...`);
+async function sendTransaction(signer: ethers.Wallet, transfer: Transfer, currentIdx: number, totalTransfers: number) {
+  const fromStr = transfer.fromName || transfer.from;
+  const toStr = transfer.toName || transfer.to;
+
+  logger.info(`\n[${currentIdx}/${totalTransfers}] ${fromStr} → ${toStr}`);
+  logger.info(`      Amount: ${ethers.formatEther(transfer.amount)} ETH`);
 
   for (let attempt = 1; attempt <= MAX_TX_RETRIES; attempt++) {
     try {
       const tx = await signer.sendTransaction({
-        to,
-        value: amount
+        to: transfer.to,
+        value: transfer.amount
       });
 
-      logger.info(`${prefix} Tx sent: ${tx.hash}`);
+      logger.info(`      TX: ${tx.hash}`);
 
       await tx.wait();
 
-      logger.info(`${prefix} ✅ Confirmed`);
+      logger.info(`      Status: CONFIRMED`);
       return;
     } catch (err: any) {
       if (attempt === MAX_TX_RETRIES) {
-        logger.info(`${prefix} ❌ Failed after ${MAX_TX_RETRIES} attempts.`);
+        logger.info(`      Status: FAILED (${MAX_TX_RETRIES} attempts)`);
         throw err;
       }
       
       const errMsg = err.shortMessage || err.message || "Unknown error";
-      const warnPrefix = ansiYellow("executing:");
-      logger.info(`${warnPrefix} ⚠️ Attempt ${attempt} failed (${errMsg}). Retrying in 2s...`);
+      logger.info(`      ⚠️ Attempt ${attempt} failed (${errMsg}). Retrying in 2s...`);
       await new Promise(resolve => setTimeout(resolve, 2000));
     }
   }
@@ -58,7 +60,7 @@ async function sendTransfers(transfers: Transfer[], provider: ethers.Provider, w
     }
     const signer = checkSigner(walletMap, t.from, provider);
     checkMaxTxAmount(t.amount);
-    await sendTransaction(signer, t.to, t.amount);
+    await sendTransaction(signer, t, count + 1, transfers.length);
     count++;
   }
 }
@@ -71,6 +73,15 @@ export async function executePlan(
   const provider = new ethers.JsonRpcProvider(ETHEREUM_RPC_URL);
 
   logTransferPlan(transfers);
+
+  const feeData = await provider.getFeeData();
+  const gasPrice = feeData.gasPrice || 0n;
+  const estimatedCost = gasPrice * 21000n * BigInt(transfers.length);
+
+  logger.info(formatTitle("GAS ESTIMATE"));
+  logger.info(`Estimated TXs: ${transfers.length}`);
+  logger.info(`Estimated Gas: ~${ethers.formatEther(estimatedCost)} ETH`);
+  logger.info(formatFooter());
 
   if (!execute) {
     logger.info("\n⚠️ Dry run only. No transactions executed.");

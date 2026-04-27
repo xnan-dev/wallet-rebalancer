@@ -10,6 +10,7 @@ import { loadWallets, buildWalletMap } from "./walletLoader";
 
 import { ETHEREUM_RPC_URL } from "./config";
 import { logger, formatTitle } from "./logger";
+import { runSafetyChecks } from "./safety";
 
 async function main() {
   const args = process.argv.slice(2);
@@ -57,6 +58,8 @@ async function main() {
 
   // 3. Plan the transactions
   const plan = buildTransferPlan(rebalanceResult);
+
+  runSafetyChecks(balances, rebalanceResult, plan);
 
   // 4. Execute the plan
   const walletMap = buildWalletMap(loaded);

@@ -10,6 +10,7 @@ import { loadWallets, buildWalletMap } from "./walletLoader";
 
 import { ETHEREUM_RPC_URL } from "./config";
 import { logger, ansiGreen } from "./logger";
+import { runSafetyChecks } from "./safety";
 
 async function main() {
   const provider = new ethers.JsonRpcProvider(ETHEREUM_RPC_URL);
@@ -37,6 +38,8 @@ async function main() {
   logRebalanceResults(rebalanceResult);
 
   const plan = buildTransferPlan(rebalanceResult);
+
+  runSafetyChecks(balances, rebalanceResult, plan);
 
   const walletMap = buildWalletMap(loaded);
   await executePlan(plan, walletMap, true);

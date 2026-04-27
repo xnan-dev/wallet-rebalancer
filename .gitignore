@@ -40,6 +40,7 @@ npm-debug.log*
 
 # Ignored scripts
 /src/send.ts
+/scripts/run-send.sh
 
 # Wallets
 /wallets
