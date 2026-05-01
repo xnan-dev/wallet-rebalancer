@@ -1,0 +1,14 @@
+{
+  "wallets": [
+    {
+      "address": "0xabc...",
+      "name": "treasury",
+      "weight": 3
+    },
+    {
+      "address": "0xdef...",
+      "name": "hot-wallet",
+      "weight": 2
+    }
+  ]
+}

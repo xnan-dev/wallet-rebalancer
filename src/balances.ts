@@ -1,10 +1,10 @@
 import { ETHEREUM_RPC_URL } from "./config";
 import { ethers } from "ethers";
 import { loadWallets } from "./walletLoader";
-import { RebalanceResult, WalletBalance } from "./types";
+import { RebalanceResult, WalletBalance, LoadedWallet } from "./types";
 import { logger, formatTitle, formatFooter, ansiYellow } from "./logger";
 
-export async function buildBalances(wallets: {address: string, name?: string}[], provider: ethers.Provider): Promise<WalletBalance[]> {
+export async function buildBalances(wallets: LoadedWallet[], provider: ethers.Provider): Promise<WalletBalance[]> {
   const jsonProvider = provider as ethers.JsonRpcProvider;
   return await Promise.all(
     wallets.map(async (w) => {
@@ -12,6 +12,7 @@ export async function buildBalances(wallets: {address: string, name?: string}[],
       return {
         address: w.address,
         name: w.name,
+        weight: w.weight,
         balance: BigInt(hexBalance)
       };
     })
@@ -31,6 +32,7 @@ async function getBalances() {
     results.push({
       address: w.address,
       name: w.name,
+      weight: w.weight,
       balance
     });
   }
@@ -65,7 +67,9 @@ export function logRebalanceResults(results: RebalanceResult[]) {
     const shortAddress = `(...${r.address.slice(-4)})`;
     const ident = r.name ? ansiYellow(`${r.name} ${shortAddress}`) : ansiYellow(r.address);
     const sign = r.delta >= 0n ? "+" : "";
-    logger.info(`${ident}: ETH ${ethers.formatEther(r.balance)} ${sign}${ethers.formatEther(r.delta)}`);
+    const weightInfo = `(${r.weight}/${r.totalWeight})`;
+    const targetStr = `=> ETH ${ethers.formatEther(r.target)}`;
+    logger.info(`${ident}: ETH ${ethers.formatEther(r.balance)} ${sign}${ethers.formatEther(r.delta)} ${weightInfo} ${targetStr}`);
   }
   logger.info(formatFooter());
 }

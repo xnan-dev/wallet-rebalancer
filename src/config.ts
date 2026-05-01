@@ -10,3 +10,4 @@ export const MAX_TX_AMOUNT = ethers.parseEther(process.env.MAX_TX_AMOUNT || "200
 export const MIN_TX_AMOUNT = ethers.parseEther(process.env.MIN_TX_AMOUNT || "0.0050");
 export const MAX_TX_RETRIES = parseInt(process.env.MAX_TX_RETRIES || "5");
 export const MAX_TRANSACTIONS = parseInt(process.env.MAX_TRANSACTIONS || "20");
+export const MIN_RESERVE_AMOUNT = ethers.parseEther(process.env.MIN_RESERVE_AMOUNT || "0.006");

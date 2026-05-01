@@ -39,12 +39,6 @@ async function main() {
   logger.info(formatTitle("STARTING WALLET REBALANCER"));
   const provider = new ethers.JsonRpcProvider(ETHEREUM_RPC_URL);
 
-  const feeData = await provider.getFeeData();
-  if (feeData.gasPrice) {
-    const cost = feeData.gasPrice * 21000n;
-    logger.info(`Current estimated gas fee: ${ethers.formatEther(cost)} ETH per transaction.`);
-  }
-
   const loaded = await loadWallets(provider);
   const addresses = loaded.map(w => w.address);
 

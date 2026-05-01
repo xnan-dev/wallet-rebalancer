@@ -14,10 +14,38 @@ export function buildWalletMap(loadedWallets: LoadedWallet[]): WalletMap {
 }
 
 export async function loadWallets(provider: any): Promise<LoadedWallet[]> {
-  const password = process.env.WALLET_PASSWORD;
+  const envPassword = process.env.WALLET_PASSWORD;
 
-  if (!password) {
-    throw new Error("WALLET_PASSWORD not set in env");
+  // 1. Load Secrets
+  let secrets: Record<string, string> = {};
+  const secretsPath = path.join(process.cwd(), ".secrets.json");
+  if (fs.existsSync(secretsPath)) {
+    try {
+      const secretsContent = fs.readFileSync(secretsPath, "utf-8");
+      const parsedSecrets = JSON.parse(secretsContent);
+      for (const [key, val] of Object.entries(parsedSecrets)) {
+        secrets[key.toLowerCase()] = val as string;
+      }
+    } catch (e) {
+      console.warn(`Failed to parse .secrets.json:`, e);
+    }
+  }
+
+  // 2. Load Wallets Config (Weights/Names)
+  let walletConfig: Record<string, { name?: string; weight?: number }> = {};
+  const configPath = path.join(process.cwd(), "wallets.json");
+  if (fs.existsSync(configPath)) {
+    try {
+      const configContent = fs.readFileSync(configPath, "utf-8");
+      const parsedConfig = JSON.parse(configContent);
+      if (parsedConfig.wallets && Array.isArray(parsedConfig.wallets)) {
+        for (const w of parsedConfig.wallets) {
+          walletConfig[w.address.toLowerCase()] = { name: w.name, weight: w.weight };
+        }
+      }
+    } catch (e) {
+      console.warn(`Failed to parse wallets.json:`, e);
+    }
   }
 
   const files = fs.readdirSync(WALLETS_DIR);
@@ -29,16 +57,21 @@ export async function loadWallets(provider: any): Promise<LoadedWallet[]> {
 
     const baseName = file.replace(".keystore.json", "");
     const keystorePath = path.join(WALLETS_DIR, file);
-    const metadataPath = path.join(WALLETS_DIR, `${baseName}.metadata.json`);
 
     const keystoreContent = fs.readFileSync(keystorePath, "utf-8");
-    let name, target;
+    const keystoreJson = JSON.parse(keystoreContent);
+    const address = keystoreJson.address ? `0x${keystoreJson.address.toLowerCase()}` : baseName.toLowerCase();
+    
+    const password = secrets[address] || envPassword;
 
-    if (fs.existsSync(metadataPath)) {
-      const meta = JSON.parse(fs.readFileSync(metadataPath, "utf-8"));
-      name = meta.name;
-      target = meta.target;
+    if (!password) {
+      throw new Error(`No password found for wallet ${address}. Set it in .secrets.json or WALLET_PASSWORD in env.`);
     }
+
+    // Get metadata from config
+    const config = walletConfig[address.toLowerCase()] || {};
+    const name = config.name;
+    const weight = config.weight ?? 1;
 
     // 🔐 decrypt
     const wallet = await ethers.Wallet.fromEncryptedJson(
@@ -52,7 +85,7 @@ export async function loadWallets(provider: any): Promise<LoadedWallet[]> {
       wallet: connected,
       address: connected.address,
       name,
-      target
+      weight
     });
   }
 

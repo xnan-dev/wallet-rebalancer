@@ -23,13 +23,33 @@ async function sendTransaction(signer: ethers.Wallet, transfer: Transfer, curren
   const toStr = transfer.toName || transfer.to;
 
   logger.info(`\n[${currentIdx}/${totalTransfers}] ${fromStr} → ${toStr}`);
-  logger.info(`      Amount: ${ethers.formatEther(transfer.amount)} ETH`);
+  
+  const balance = await signer.provider!.getBalance(signer.address);
+  const feeData = await signer.provider!.getFeeData();
+  const gasPrice = feeData.gasPrice || 0n;
+  const gasLimit = 21000n;
+  const gasCost = gasPrice * gasLimit;
+
+  let amount = transfer.amount;
+  if (amount + gasCost > balance) {
+    amount = balance - gasCost;
+    if (amount <= 0n) {
+      logger.info(`      Amount: ${ethers.formatEther(transfer.amount)} ETH`);
+      logger.info(`      ⚠️ Insufficient funds for gas fee (${ethers.formatEther(gasCost)} ETH). Skipping.`);
+      return;
+    }
+    logger.info(`      Amount: ${ethers.formatEther(transfer.amount)} ETH (Adjusted to ${ethers.formatEther(amount)} ETH to cover gas)`);
+  } else {
+    logger.info(`      Amount: ${ethers.formatEther(amount)} ETH`);
+  }
 
   for (let attempt = 1; attempt <= MAX_TX_RETRIES; attempt++) {
     try {
       const tx = await signer.sendTransaction({
         to: transfer.to,
-        value: transfer.amount
+        value: amount,
+        gasLimit,
+        gasPrice
       });
 
       logger.info(`      TX: ${tx.hash}`);

@@ -6,6 +6,7 @@ export type Wei = bigint;
 export type WalletBalance = {
   address: Address;
   name?: string;
+  weight: number;
   balance: Wei;
 };
 
@@ -15,6 +16,8 @@ export type RebalanceResult = {
   balance: Wei;
   target: Wei;
   delta: Wei;
+  weight: number;
+  totalWeight: number;
 };
 
 export type Transfer = {
@@ -29,7 +32,7 @@ export type LoadedWallet = {
   wallet: ethers.Signer;
   address: Address;
   name?: string;
-  target?: number;
+  weight: number;
 };
 
 export type WalletMap = Record<Address, ethers.Wallet>;
