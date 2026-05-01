@@ -16,7 +16,7 @@ export function rebalance(
   const totalReserves = MIN_RESERVE_AMOUNT * BigInt(wallets.length);
   const distributable = totalBalance > totalReserves ? totalBalance - totalReserves : 0n;
 
-  return wallets.map((w) => {
+  const results = wallets.map((w) => {
     const weight = BigInt(w.weight);
     
     // Target = Reserve + (Weighted share of remaining balance)
@@ -32,4 +32,14 @@ export function rebalance(
       totalWeight: Number(totalWeight)
     };
   });
+
+  // Distribute leftover wei (remainder from division) to the first wallet
+  const currentTotalTarget = results.reduce((acc, r) => acc + r.target, 0n);
+  const leftover = totalBalance - currentTotalTarget;
+  if (leftover > 0n && results.length > 0) {
+    results[0].target += leftover;
+    results[0].delta = results[0].balance - results[0].target;
+  }
+
+  return results;
 }

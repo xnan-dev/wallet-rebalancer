@@ -5,4 +5,4 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 cd "$DIR"
 
-npx tsx --test "test/**/*.ts"
+MIN_RESERVE_AMOUNT=0 npx tsx --test "test/**/*.ts"

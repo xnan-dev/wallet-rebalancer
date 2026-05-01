@@ -6,9 +6,9 @@ import { rebalance } from "../src/rebalance";
 describe("Rebalance Logic", () => {
   it("should split balances equally when perfectly divisible", () => {
     const wallets = [
-      { address: "0x1", balance: 100n },
-      { address: "0x2", balance: 50n },
-      { address: "0x3", balance: 0n }
+      { address: "0x1", balance: 100n, weight: 1 },
+      { address: "0x2", balance: 50n, weight: 1 },
+      { address: "0x3", balance: 0n, weight: 1 }
     ];
 
     const results = rebalance(wallets);
@@ -26,9 +26,9 @@ describe("Rebalance Logic", () => {
 
   it("should handle remainders by distributing dust to the first wallets", () => {
     const wallets = [
-      { address: "0x1", balance: 51n },
-      { address: "0x2", balance: 50n },
-      { address: "0x3", balance: 50n }
+      { address: "0x1", balance: 51n, weight: 1 },
+      { address: "0x2", balance: 50n, weight: 1 },
+      { address: "0x3", balance: 50n, weight: 1 }
     ];
 
     const results = rebalance(wallets);
@@ -42,8 +42,8 @@ describe("Rebalance Logic", () => {
 
   it("should handle ether scale balances correctly (migrated from standalone script)", () => {
     const wallets = [
-      { address: "w1", balance: ethers.parseEther("10") },
-      { address: "w2", balance: ethers.parseEther("0") }
+      { address: "w1", balance: ethers.parseEther("10"), weight: 1 },
+      { address: "w2", balance: ethers.parseEther("0"), weight: 1 }
     ];
 
     const results = rebalance(wallets);

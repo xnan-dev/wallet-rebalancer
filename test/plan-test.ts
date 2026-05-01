@@ -7,9 +7,9 @@ import { buildTransferPlan } from "../src/plan";
 describe("Transfer Plan Logic", () => {
   it("should calculate correct transfers to rebalance 10 ETH across 3 wallets", () => {
     const wallets = [
-      { address: "w1", balance: ethers.parseEther("10") },
-      { address: "w2", balance: ethers.parseEther("0") },
-      { address: "w3", balance: ethers.parseEther("0") }
+      { address: "w1", balance: ethers.parseEther("10"), weight: 1 },
+      { address: "w2", balance: ethers.parseEther("0"), weight: 1 },
+      { address: "w3", balance: ethers.parseEther("0"), weight: 1 }
     ];
 
     const rebalanceResult = rebalance(wallets);
