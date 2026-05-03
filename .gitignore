@@ -41,8 +41,10 @@ npm-debug.log*
 # Ignored scripts
 /src/send.ts
 /src/createWallet.ts
+/src/swap_eth_usdt.ts
 /scripts/run-send.sh
 /scripts/run-createWallet.sh
+/scripts/run-swap_eth_usdt.sh
 
 # Wallets
 /wallets

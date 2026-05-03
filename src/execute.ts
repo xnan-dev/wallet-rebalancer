@@ -24,38 +24,63 @@ async function sendTransaction(signer: ethers.Wallet, transfer: Transfer, curren
 
   logger.info(`\n[${currentIdx}/${totalTransfers}] ${fromStr} → ${toStr}`);
   
-  const balance = await signer.provider!.getBalance(signer.address);
+  const ethBalance = await signer.provider!.getBalance(signer.address);
   const feeData = await signer.provider!.getFeeData();
   const gasPrice = feeData.gasPrice || 0n;
-  const gasLimit = 21000n;
+  
+  // Standard ETH transfer gas limit is 21k, ERC20 is typically ~60k
+  const gasLimit = transfer.asset === "ETH" ? 21000n : 60000n;
   const gasCost = gasPrice * gasLimit;
 
-  let amount = transfer.amount;
-  if (amount + gasCost > balance) {
-    amount = balance - gasCost;
-    if (amount <= 0n) {
-      logger.info(`      Amount: ${ethers.formatEther(transfer.amount)} ETH`);
-      logger.info(`      ⚠️ Insufficient funds for gas fee (${ethers.formatEther(gasCost)} ETH). Skipping.`);
-      return;
+  if (ethBalance < gasCost) {
+    logger.info(`      Amount: ${ethers.formatUnits(transfer.amount, transfer.decimals)} ${transfer.asset}`);
+    logger.info(`      ⚠️ Insufficient ETH for gas fee (${ethers.formatEther(gasCost)} ETH). Skipping.`);
+    return;
+  }
+
+  let finalAmount = transfer.amount;
+
+  // For ETH, we might need to adjust the amount to leave room for gas
+  if (transfer.asset === "ETH") {
+    if (finalAmount + gasCost > ethBalance) {
+      finalAmount = ethBalance - gasCost;
+      if (finalAmount <= 0n) {
+        logger.info(`      Amount: ${ethers.formatEther(transfer.amount)} ETH`);
+        logger.info(`      ⚠️ Insufficient funds for gas fee after adjustment. Skipping.`);
+        return;
+      }
+      logger.info(`      Amount: ${ethers.formatEther(transfer.amount)} ETH (Adjusted to ${ethers.formatEther(finalAmount)} ETH to cover gas)`);
+    } else {
+      logger.info(`      Amount: ${ethers.formatEther(finalAmount)} ETH`);
     }
-    logger.info(`      Amount: ${ethers.formatEther(transfer.amount)} ETH (Adjusted to ${ethers.formatEther(amount)} ETH to cover gas)`);
   } else {
-    logger.info(`      Amount: ${ethers.formatEther(amount)} ETH`);
+    logger.info(`      Amount: ${ethers.formatUnits(finalAmount, transfer.decimals)} ${transfer.asset}`);
   }
 
   for (let attempt = 1; attempt <= MAX_TX_RETRIES; attempt++) {
     try {
-      const tx = await signer.sendTransaction({
-        to: transfer.to,
-        value: amount,
-        gasLimit,
-        gasPrice
-      });
+      let tx;
+      if (transfer.asset === "ETH") {
+        tx = await signer.sendTransaction({
+          to: transfer.to,
+          value: finalAmount,
+          gasLimit,
+          gasPrice
+        });
+      } else {
+        if (!transfer.contractAddress) {
+          throw new Error(`Missing contract address for ${transfer.asset}`);
+        }
+        const contract = new ethers.Contract(
+          transfer.contractAddress,
+          ["function transfer(address to, uint256 amount) public returns (bool)"],
+          signer
+        );
+        tx = await contract.transfer(transfer.to, finalAmount, { gasLimit, gasPrice });
+      }
 
       logger.info(`      TX: ${tx.hash}`);
-
       await tx.wait();
-
       logger.info(`      Status: CONFIRMED`);
       return;
     } catch (err: any) {
@@ -70,6 +95,7 @@ async function sendTransaction(signer: ethers.Wallet, transfer: Transfer, curren
     }
   }
 }
+
 
 async function sendTransfers(transfers: Transfer[], provider: ethers.Provider, walletMap: WalletMap) {
   let count = 0;

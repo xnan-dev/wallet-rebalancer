@@ -2,10 +2,11 @@ import * as dotenv from "dotenv";
 dotenv.config();
 
 import { ethers } from "ethers";
-import { rebalance } from "./rebalance";
-import { buildTransferPlan, logTransferPlan } from "./plan";
+import { rebalanceMultiAsset } from "./rebalance";
+import { buildMultiAssetTransferPlan, logTransferPlan } from "./plan";
 import { executePlan } from "./execute";
-import { logBalances, logRebalanceResults, buildBalances } from "./balances";
+
+import { logBalances, logRebalanceResults, buildBalances, contractConfig } from "./balances";
 import { loadWallets, buildWalletMap } from "./walletLoader";
 
 import { ETHEREUM_RPC_URL } from "./config";
@@ -46,14 +47,20 @@ async function main() {
   const balances = await buildBalances(loaded, provider);
   logBalances("CURRENT BALANCES", balances);
 
-  // 2. Calculate the rebalance operations needed
-  const rebalanceResult = rebalance(balances);
-  logRebalanceResults(rebalanceResult);
+  // 2. Calculate the rebalance operations needed (ETH + ERC20s)
+  const rebalanceResults = rebalanceMultiAsset(balances, contractConfig);
+  logRebalanceResults(rebalanceResults);
 
-  // 3. Plan the transactions
-  const plan = buildTransferPlan(rebalanceResult);
+  // 3. Plan the transactions (Multi-Asset)
+  const plan = buildMultiAssetTransferPlan(rebalanceResults, contractConfig);
 
-  runSafetyChecks(balances, rebalanceResult, plan);
+
+  // Safety checks (Currently ETH only)
+
+  const ethResults = rebalanceResults.find(r => r.asset === "ETH")?.results || [];
+  const ethPlan = plan.filter(p => p.asset === "ETH");
+  runSafetyChecks(balances, ethResults, ethPlan);
+
 
   // 4. Execute the plan
   const walletMap = buildWalletMap(loaded);
