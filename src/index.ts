@@ -12,11 +12,13 @@ import { loadWallets, buildWalletMap } from "./walletLoader";
 import { ETHEREUM_RPC_URL } from "./config";
 import { logger, formatTitle } from "./logger";
 import { runSafetyChecks } from "./safety";
+import { LoadedWallet } from "./types";
 
 async function main() {
   const args = process.argv.slice(2);
   const isExecute = args.includes("--execute");
   const isDryRun = args.includes("--dry-run");
+  const isPortfolio = args.includes("--portfolio-rebalancer");
 
   if (!isExecute && !isDryRun) {
     logger.info("Wallet Rebalancer Tool");
@@ -24,6 +26,7 @@ async function main() {
     logger.info("\nUsage:");
     logger.info("  --dry-run   : View the calculated transfer plan without sending any transactions.");
     logger.info("  --execute   : Execute the transfer plan and broadcast transactions.");
+    logger.info("  --portfolio-rebalancer : Run in portfolio rebalancer mode.");
     logger.info("\nConfiguration (.env):");
     logger.info("  WALLET_PASSWORD  : Password to decrypt keystore files (required)");
     logger.info("  ETHEREUM_RPC_URL : RPC node endpoint (default: http://127.0.0.1:8545)");
@@ -37,10 +40,26 @@ async function main() {
     process.exit(0);
   }
 
-  logger.info(formatTitle("STARTING WALLET REBALANCER"));
+  if (isPortfolio) {
+    logger.info(formatTitle("STARTING PORTFOLIO REBALANCER"));
+  } else {
+    logger.info(formatTitle("STARTING WALLET REBALANCER"));
+  }
   const provider = new ethers.JsonRpcProvider(ETHEREUM_RPC_URL);
 
   const loaded = await loadWallets(provider);
+  if (isPortfolio) {
+    await portfolioRebalance(provider, loaded, isExecute, isDryRun);
+  } else {
+    await walletRebalance(provider, loaded, isExecute, isDryRun);
+  }
+}
+
+async function portfolioRebalance(provider: ethers.JsonRpcProvider, loaded: LoadedWallet[], isExecute: boolean, isDryRun: boolean) {
+  logger.info("Portfolio rebalancing not fully implemented yet.");
+}
+
+async function walletRebalance(provider: ethers.JsonRpcProvider, loaded: LoadedWallet[], isExecute: boolean, isDryRun: boolean) {
   const addresses = loaded.map(w => w.address);
 
   // 1. Gather current balances
