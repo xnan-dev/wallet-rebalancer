@@ -5,34 +5,24 @@
       "type": "native",
       "decimals": 18
     },
-    "USDT": {
-      "type": "erc20",
-      "address": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
-      "decimals": 6
-    },
-    "USDC": {
-      "type": "erc20",
-      "address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
-      "decimals": 6
-    },
     "WBTC": {
       "type": "erc20",
       "address": "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
       "decimals": 8
     },
+    "WXRP": {
+      "type": "erc20",
+      "address": "0x39fBBABf11738317a448031930706cd3e612e1B9",
+      "decimals": 18
+    },
+    "SOL": {
+      "type": "erc20",
+      "address": "0xD31a59c85aE9D8edEFeC411D448f90841571b89c",
+      "decimals": 9
+    },
     "wstETH": {
       "type": "erc20",
       "address": "0x7f39c581f595b53c5cb1cc6e1b3f2c7c6a0f9cba",
-      "decimals": 18
-    },
-    "USDC": {
-      "type": "erc20",
-      "address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
-      "decimals": 6
-    },
-    "DAI": {
-      "type": "erc20",
-      "address": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
       "decimals": 18
     },
     "USDT": {
@@ -55,6 +45,21 @@
       "address": "0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DdAE9",
       "decimals": 18
     },
+    "OP": {
+      "type": "erc20",
+      "address": "0x4200000000000000000000000000000000000042",
+      "decimals": 18
+    },
+    "ARB": {
+      "type": "erc20",
+      "address": "0xB50721BCf8d664c30412Cfbc6cf7a15145234ad1",
+      "decimals": 18
+    },
+    "POL": {
+      "type": "erc20",
+      "address": "0x455e53CBB86018Ac2B8092FdCd39d8444aFFC3F6",
+      "decimals": 18
+    },
     "UNI": {
       "type": "erc20",
       "address": "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984",
@@ -64,5 +69,11 @@
       "type": "erc20",
       "address": "0x9f8F72aA9304c8B593d555F12ef6589cC3A579A2",
       "decimals": 18
+    },
+    "PAXG": {
+      "type": "erc20",
+      "address": "0x45804880De22913dAFE09f4980848ECE6EcbAf78",
+      "decimals": 18
     }
+  }
 }

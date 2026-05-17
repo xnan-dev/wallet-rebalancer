@@ -1,0 +1,41 @@
+{
+    "version": 1,
+    "portfolios": [{
+        "wallets": ["w5"],
+        "allocations": [
+            { "category":"natives", "minWeight":10, "maxWeight":30, "assets": [
+                { "chain":"ethereum", "symbol": "ETH", "minWeight": 10, "maxWeight": 30, "zeroWeightAbovePrice": 4400, "fullWeightBelowPrice": 1842 , "priceAgainstSymbol": "USDT"  },
+                { "chain":"ethereum", "symbol": "WBTC", "minWeight": 0, "maxWeight": 20, "zeroWeightAbovePrice": 120000, "fullWeightBelowPrice": 51000 , "priceAgainstSymbol": "USDT" },
+                { "chain":"ethereum", "symbol": "WXRP", "minWeight": 0, "maxWeight": 10, "zeroWeightAbovePrice": 3.20, "fullWeightBelowPrice": 1.40 , "priceAgainstSymbol": "USDT" },
+                { "chain":"ethereum", "symbol": "SOL", "minWeight": 0, "maxWeight": 10, "zeroWeightAbovePrice": 225, "fullWeightBelowPrice": 80 , "priceAgainstSymbol": "USDT" },
+            ]},
+            { "category":"staking", "minWeight":10, "maxWeight":20, "assets": [
+                { "chain":"ethereum", "symbol": "wstETH", "minWeight": 10, "maxWeight": 25, "zeroWeightAbovePrice": 5250, "fullWeightBelowPrice": 1950, "priceAgainstSymbol": "USDT" },
+            ]},
+            { "category":"stables", "minWeight":0, "maxWeight":40, "assets": [
+                { "chain":"ethereum", "symbol": "USDT", "minWeight": 0, "maxWeight": 40, "zeroWeightAbovePrice": 1.05, "fullWeightBelowPrice": 0.95 , "priceAgainstSymbol": "USDT"},
+            ]},
+            { "category":"infra", "minWeight":10, "maxWeight":25, "assets": [
+                { "chain":"ethereum", "symbol": "LINK", "minWeight": 10, "maxWeight": 25, "zeroWeightAbovePrice": 0.006, "fullWeightBelowPrice":  0.0033 , "priceAgainstSymbol": "ETH"},
+                { "chain":"ethereum", "symbol": "LDO", "minWeight": 10, "maxWeight": 25, "zeroWeightAbovePrice": 0.0013, "fullWeightBelowPrice": 0.00013, "priceAgainstSymbol": "ETH" },
+                { "chain":"ethereum", "symbol": "AAVE", "minWeight": 0, "maxWeight": 15, "zeroWeightAbovePrice": 0.10, "fullWeightBelowPrice": 0.027, "priceAgainstSymbol": "ETH" },
+            ]},       
+            { "category":"scaling", "minWeight":10, "maxWeight":20, "assets": [
+                { "chain":"ethereum", "symbol": "OP", "minWeight": 10, "maxWeight": 20, "zeroWeightAbovePrice": 0.0010, "fullWeightBelowPrice": 0.00005, "priceAgainstSymbol": "ETH"  },
+                { "chain":"ethereum", "symbol": "ARB", "minWeight": 10, "maxWeight": 20, "zeroWeightAbovePrice": 0.0004, "fullWeightBelowPrice": 0.00004 , "priceAgainstSymbol": "ETH" },
+                { "chain":"ethereum", "symbol": "POL", "minWeight": 0, "maxWeight": 20, "zeroWeightAbovePrice": 0.00022, "fullWeightBelowPrice": 0.000035, "priceAgainstSymbol": "ETH"  },
+            ]},
+            { "category":"revenue", "minWeight":10, "maxWeight":20, "assets": [
+                { "chain":"ethereum", "symbol": "UNI", "minWeight": 10, "maxWeight": 20, "zeroWeightAbovePrice": 0.004, "fullWeightBelowPrice": 0.0013, "priceAgainstSymbol": "ETH"  },
+                { "chain":"ethereum", "symbol": "MKR", "minWeight": 10, "maxWeight": 20, "zeroWeightAbovePrice": 1.66, "fullWeightBelowPrice": 0.36, "priceAgainstSymbol": "ETH"  },
+            ]},
+            { "category":"rwa", "minWeight":0, "maxWeight":40, "assets": [
+                { "chain":"ethereum", "symbol": "PAXG", "minWeight": 0, "maxWeight": 40, "zeroWeightAbovePrice": 4724, "fullWeightBelowPrice": 2360, "priceAgainstSymbol": "USDT"  },
+            ]}
+        ]
+    }],
+    "tradeConstraints": {
+        "minUsdToSwap" : 50,
+        "maxRequestsPerMinute" : 5
+    }
+}
