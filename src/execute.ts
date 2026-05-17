@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 import { Transfer, WalletMap } from "./types";
-import { ETHEREUM_RPC_URL, MAX_TX_AMOUNT, MAX_TX_RETRIES, MAX_TRANSACTIONS } from "./config";
+import { ETHEREUM_RPC_URL, MAX_TX_AMOUNT, MAX_TX_RETRIES, MAX_TRANSACTIONS, MAX_GAS_PER_TOKEN_TX, DEFAULT_GAS_PRICE } from "./config";
 import { logTransferPlan } from "./plan";
 import { logger, formatTitle, formatFooter, ansiRed, ansiYellow } from "./logger";
 
@@ -26,10 +26,10 @@ async function sendTransaction(signer: ethers.Wallet, transfer: Transfer, curren
   
   const ethBalance = await signer.provider!.getBalance(signer.address);
   const feeData = await signer.provider!.getFeeData();
-  const gasPrice = feeData.gasPrice || 0n;
+  const gasPrice = feeData.gasPrice || DEFAULT_GAS_PRICE;
   
-  // Standard ETH transfer gas limit is 21k, ERC20 is typically ~60k
-  const gasLimit = transfer.asset === "ETH" ? 21000n : 60000n;
+  // Standard ETH transfer gas limit is 21k, ERC20 typically needs more. Setting safe ceiling from config.
+  const gasLimit = transfer.asset === "ETH" ? 21000n : MAX_GAS_PER_TOKEN_TX;
   const gasCost = gasPrice * gasLimit;
 
   if (ethBalance < gasCost) {
@@ -120,12 +120,15 @@ export async function executePlan(
 
   logTransferPlan(transfers);
 
+  const ethTxs = transfers.filter(t => t.asset === "ETH").length;
+  const erc20Txs = transfers.length - ethTxs;
+  
   const feeData = await provider.getFeeData();
-  const gasPrice = feeData.gasPrice || 0n;
-  const estimatedCost = gasPrice * 21000n * BigInt(transfers.length);
+  const gasPrice = feeData.gasPrice || DEFAULT_GAS_PRICE;
+  const estimatedCost = gasPrice * (21000n * BigInt(ethTxs) + MAX_GAS_PER_TOKEN_TX * BigInt(erc20Txs));
 
   logger.info(formatTitle("GAS ESTIMATE"));
-  logger.info(`Estimated TXs: ${transfers.length}`);
+  logger.info(`Estimated TXs: ${transfers.length} (${ethTxs} ETH, ${erc20Txs} ERC20)`);
   logger.info(`Estimated Gas: ~${ethers.formatEther(estimatedCost)} ETH`);
   logger.info(formatFooter());
 

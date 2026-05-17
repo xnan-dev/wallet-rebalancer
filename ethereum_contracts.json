@@ -14,6 +14,55 @@
       "type": "erc20",
       "address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
       "decimals": 6
+    },
+    "WBTC": {
+      "type": "erc20",
+      "address": "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
+      "decimals": 8
+    },
+    "wstETH": {
+      "type": "erc20",
+      "address": "0x7f39c581f595b53c5cb1cc6e1b3f2c7c6a0f9cba",
+      "decimals": 18
+    },
+    "USDC": {
+      "type": "erc20",
+      "address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+      "decimals": 6
+    },
+    "DAI": {
+      "type": "erc20",
+      "address": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+      "decimals": 18
+    },
+    "USDT": {
+      "type": "erc20",
+      "address": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+      "decimals": 6
+    },
+    "LINK": {
+      "type": "erc20",
+      "address": "0x514910771AF9Ca656af840dff83E8264EcF986CA",
+      "decimals": 18
+    },
+    "LDO": {
+      "type": "erc20",
+      "address": "0x5A98FcBEA516Cf06857215779Fd812CA3beF1B32",
+      "decimals": 18
+    },
+    "AAVE": {
+      "type": "erc20",
+      "address": "0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DdAE9",
+      "decimals": 18
+    },
+    "UNI": {
+      "type": "erc20",
+      "address": "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984",
+      "decimals": 18
+    },
+    "MKR": {
+      "type": "erc20",
+      "address": "0x9f8F72aA9304c8B593d555F12ef6589cC3A579A2",
+      "decimals": 18
     }
-  }
 }

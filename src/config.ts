@@ -11,3 +11,5 @@ export const MIN_TX_AMOUNT = ethers.parseEther(process.env.MIN_TX_AMOUNT || "0.0
 export const MAX_TX_RETRIES = parseInt(process.env.MAX_TX_RETRIES || "5");
 export const MAX_TRANSACTIONS = parseInt(process.env.MAX_TRANSACTIONS || "20");
 export const MIN_RESERVE_AMOUNT = ethers.parseEther(process.env.MIN_RESERVE_AMOUNT || "0.006");
+export const MAX_GAS_PER_TOKEN_TX = BigInt(process.env.MAX_GAS_PER_TOKEN_TX || "100000");
+export const DEFAULT_GAS_PRICE = ethers.parseUnits(process.env.DEFAULT_GAS_PRICE || "20", "gwei");
